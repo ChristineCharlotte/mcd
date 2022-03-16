@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ant Design Dashboard</title>
+  <!-- 引入moment.js -->
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.js"></script>
+  <!-- 引入vue.js -->
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <!-- 引入ant-design-vue样式 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ant-design-vue@1.7.7/dist/antd.css">
+  <!-- 引入ant-design-vue的组件库 -->
+  <script src="https://cdn.jsdelivr.net/npm/ant-design-vue@1.7.7/dist/antd.js"></script>
+  <!-- 引入echarts -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+  <style>
+    .normal_table td {
+      font-weight: bold;
+      width: 250px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" style="padding: 50px;">
+    <!-- 设置垂直方向的间距 -->
+    <a-space direction="vertical" size="large">
+      <!-- 第一行：标题 -->
+      <a-row size="large">
+        <a-col :span="4">
+          <span>IT CapEx Accural Aging Report</span>
+        </a-col>
+        <a-col :span="4">
+          <a-button type="primary">
+            跳转明细
+          </a-button>
+        </a-col>
+      </a-row>
+      <!-- /第一行：标题 -->
+
+      <!-- 第二行：汇总表格 -->
+      <a-row>
+        <table class="normal_table">
+          <tr>
+            <td>Beginning Balance</td>
+            <td>{{ beginning_balance }}</td>
+            <td>YTD Settled Accrual</td>
+            <td></td>
+            <td>YTD Cancelled Accrual</td>
+            <td></td>
+            <td>Ending Balance</td>
+            <td></td>
+          </tr>
+        </table>
+      </a-row>
+      <!-- /第二行：汇总表格 -->
+
+      <!-- 第三行：图表 -->
+      <a-row>
+        <a-col :span="16">
+          <div id="r3chart1" style="width: 1000px;height:400px;"></div>
+        </a-col>
+        <a-col :span="7">
+          <div id="r3chart2" style="width: 600px;height:400px;"></div>
+        </a-col>
+      </a-row>
+      <!-- /第三行：图表 -->
+
+      <!-- 第四行：注释 -->
+      <a-row>
+        * Cleared includes both settled and cancelled accrual. (The same below.)
+      </a-row>
+      <!-- /第四行：注释 -->
+
+      <!-- 第五行：标题 -->
+      <a-row>
+        <h2>Summary by IT BP</h2>
+      </a-row>
+      <!-- /第五行：标题 -->
+
+      <!-- 第六行：图表 -->
+      <a-row>
+        <a-col :span="14">
+          <div id="r6chart1" style="width: 1000px;height:400px;"></div>
+        </a-col>
+        <a-col :span="8">
+          <div id="r6chart2" style="width: 800px;height:400px;"></div>
+        </a-col>
+      </a-row>
+      <!-- /第六行：图表 -->
+
+      <!-- 第七行：表格 -->
+      <a-row>
+        <a-table :columns="columns" :data-source="data" :pagination="false">
+        </a-table>
+      </a-row>
+      <!-- /第七行：表格 -->
+
+      <!-- 第八行：标题 -->
+      <a-row>
+        <h2>Top 10 Ending Balance Breakdown</h2>
+      </a-row>
+      <!-- /第八行：标题 -->
+
+      <!-- 第九行：表格 -->
+      <a-row>
+        <a-table :columns="columns" :data-source="data" :pagination="false">
+        </a-table>
+      </a-row>
+      <!-- 第九行：表格 -->
+
+    </a-space>
+  </div>
+
+  <script>
+    const app = new Vue({
+      el: '#app',
+      data: {
+        beginning_balance: '3333',
+        columns: [
+          {
+            title: 'Name',
+            dataIndex: 'name',
+            key: 'name',
+          },
+          {
+            title: 'Age',
+            dataIndex: 'age',
+            key: 'age',
+          },
+          {
+            title: 'Address',
+            dataIndex: 'address',
+            key: 'address',
+          },
+          {
+            title: 'Tags',
+            key: 'tags',
+            dataIndex: 'tags',
+          },
+        ],
+        data: [
+          {
+            key: '1',
+            name: 'John Brown',
+            age: 32,
+            address: 'New York No. 1 Lake Park',
+            tags: ['nice', 'developer'],
+          },
+          {
+            key: '2',
+            name: 'Jim Green',
+            age: 42,
+            address: 'London No. 1 Lake Park',
+            tags: ['loser'],
+          },
+          {
+            key: '3',
+            name: 'Joe Black',
+            age: 32,
+            address: 'Sidney No. 1 Lake Park',
+            tags: ['cool', 'teacher'],
+          },
+        ],
+        option: {
+          title: {
+            text: 'ECharts 入门示例'
+          },
+          tooltip: {},
+          legend: {
+            data: ['销量']
+          },
+          xAxis: {
+            data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
+          },
+          yAxis: {},
+          series: [{
+            name: '销量',
+            type: 'bar',
+            data: [5, 20, 36, 10, 10, 20]
+          }]
+        },
+        //row 3 chart 1 option
+        r3chart1option: {
+          title: {
+            text: 'YTD Cleared%',
+            left: 'center',
+            top: '5%',
+          },
+          legend: {
+            top: '85%',
+          },
+          grid: {
+            left: '10%',
+            right: '10%',
+            bottom: '20%',
+            top: '20%',
+            containLabel: true,
+          },
+          tooltip: {},
+          dataset: {
+            // 提供一份数据。
+            source: [
+              ['1', ' YTD Settled%', ' YTD Cancelled', 'YTD Ending Balance%', 'Monthly Cleared'],
+              ['Jan', 98, 0, 2, 50000],
+              ['Feb', 0, 0, 100, 150000],
+              ['Mar', 51, 0, 49, 30000],
+              ['Apr', 63, 0, 37, 60000],
+              ['May', 98, 0, 2, 50000],
+              ['Jun', 0, 0, 100, 150000],
+              ['Jul', 51, 0, 49, 30000],
+              ['Aug', 63, 0, 37, 600],
+              ['Sep', 98, 0, 2, 500],
+              ['Oct', 0, 0, 100, 1500],
+              ['Nov', 51, 0, 49, 300],
+              ['Dec', 63, 0, 37, 600],
+            ],
+          },
+          // // 声明一个 X 轴，类目轴（category）。默认情况下，类目轴对应到 dataset 第一列。
+          // xAxis: {type: 'category'},
+          // // 声明一个 Y 轴，数值轴。
+          // yAxis: {},
+          xAxis: {
+            name: '',
+            type: 'category',
+            // axisLine: {
+            //     symbol: ['none', 'none'], //两端都显示箭头
+            //     symbolOffset: [0, 30] //箭头距离两端的距离,可为负数
+            // }
+          },
+          yAxis: [
+            {
+              name: '',
+              type: 'value',
+              // axisLine: {
+              //     show: true,
+              //     symbol: ['none', 'arrow'], //两端都显示箭头
+              //     symbolOffset: [0, 5], //箭头距离两端的距离,可为负数
+              // },
+            },
+            {
+              name: 'Thousands',
+              type: 'value',
+              // axisLine: {
+              //     show: true,
+              //     symbol: ['none', 'arrow'], //两端都显示箭头
+              //     symbolOffset: [0, 5], //箭头距离两端的距离,可为负数
+              // },
+            }
+
+          ],
+          // 声明多个 bar 系列，默认情况下，每个系列会自动对应到 dataset 的每一列。
+          series: [
+            {
+              yAxisIndex: 0,
+              stack: '0',
+              type: 'bar',
+              label: {
+                show: true,
+                formatter: function (c) {
+                  //console.log(c);
+                  return c.data[1] + "%";
+                }
+              },
+              itemStyle: {
+                //通常情况下：
+                normal: {
+                  //每个柱子的颜色即为colorList数组里的每一项，如果柱子数目多于colorList的长度，则柱子颜色循环使用该数组
+                  color: "#9cc4e4",
+                },
+              },
+              //鼠标悬停时：
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+              },
+            },
+            {
+              yAxisIndex: 0,
+              stack: '0',
+              type: 'bar',
+              barWidth: 30,//柱图宽度
+              label: {
+                show: true,
+                formatter: function (c) {
+                  //console.log(c);
+                  return c.data[2] + "%";
+                }
+              },
+              itemStyle: {
+                //通常情况下：
+                normal: {
+                  //每个柱子的颜色即为colorList数组里的每一项，如果柱子数目多于colorList的长度，则柱子颜色循环使用该数组
+                  color: '#4474c4',
+                },
+              },
+              //鼠标悬停时：
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+              },
+            },
+            {
+              yAxisIndex: 0,
+              stack: '0',
+              type: 'bar',
+              barWidth: 30,//柱图宽度
+              label: {
+                show: true,
+                formatter: function (c) {
+                  //console.log(c);
+                  return c.data[3] + "%";
+                }
+              },
+              itemStyle: {
+                //通常情况下：
+                normal: {
+                  //每个柱子的颜色即为colorList数组里的每一项，如果柱子数目多于colorList的长度，则柱子颜色循环使用该数组
+                  color: '#cccccc',
+                },
+              },
+              //鼠标悬停时：
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+              },
+            },
+            {
+              yAxisIndex: 1,
+              type: 'line',
+              itemStyle: {
+                //通常情况下：
+                normal: {
+                  //每个柱子的颜色即为colorList数组里的每一项，如果柱子数目多于colorList的长度，则柱子颜色循环使用该数组
+                  color: "orange",
+                },
+              },
+              //鼠标悬停时：
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+              },
+            },
+          ],
+        },
+        //row 3 chart 2 option
+        r3chart2option: {
+          title: {
+            text: 'Ending Balance',
+            subtext: 'Thousands',
+            left: 'center',
+            top: '5%'
+          },
+          legend: {
+            y: "80%"
+          },
+          tooltip: {
+            trigger: 'axis',
+            showContent: false
+          },
+          dataset: {
+            source: [
+              ['product', '2012',],
+              ['<1 year', 41.1,],
+              ['Milk Tea', 86.5,],
+              ['Cheese Cocoa', 24.1,],
+              ['Walnut Brownie', 55.2,]
+            ]
+          },
+          grid: { top: '55%' },
+          series: [
+            {
+              type: 'pie',
+              id: 'pie',
+              radius: '50%',
+              center: ['50%', '45%'],
+              label: {
+                formatter: '{b}: {@2012} ({d}%)'
+              },
+              encode: {
+                itemName: 'product',
+                value: '2012',
+                tooltip: '2012'
+              }
+            }
+          ]
+        },
+        r6chart1option:
+        //let colorList = ['#3161b6', '#e88b00', '#9ce484'];
+        {
+          title: {
+            text: 'YTD Cleared% by IT BP',
+            left: 'center',
+            top: '5%',
+          },
+          legend: {
+            top: '85%',
+          },
+          grid: {
+            left: '10%',
+            right: '10%',
+            bottom: '20%',
+            top: '20%',
+            containLabel: true,
+          },
+          tooltip: {},
+          dataset: {
+            // 提供一份数据。
+            source: [
+              ['Period', '<1 year', '1-2 year', '2-3 years', '>3 year'],
+              ['Matcha Latte', 98, 2, 0],
+              ['Milk Tea', 0, 100, 0],
+              ['Cheese Cocoa', 51, 49, 0],
+              ['Walnut Brownie', 63, 37, 0],
+            ],
+          },
+          // // 声明一个 X 轴，类目轴（category）。默认情况下，类目轴对应到 dataset 第一列。
+          // xAxis: {type: 'category'},
+          // // 声明一个 Y 轴，数值轴。
+          // yAxis: {},
+          xAxis: {
+            name: 'Thousands',
+            type: 'value',
+            axisLine: {
+              show: true,
+              symbol: ['none', 'arrow'], //两端都显示箭头
+              symbolOffset: [0, 5], //箭头距离两端的距离,可为负数
+            },
+          },
+          yAxis: {
+            name: '',
+            type: 'category',
+            // axisLine: {
+            //     symbol: ['none', 'none'], //两端都显示箭头
+            //     symbolOffset: [0, 30] //箭头距离两端的距离,可为负数
+            // }
+          },
+          // 声明多个 bar 系列，默认情况下，每个系列会自动对应到 dataset 的每一列。
+          series: [
+            {
+              stack: '0',
+              type: 'bar',
+              itemStyle: {
+                //通常情况下：
+                normal: {
+                  //每个柱子的颜色即为colorList数组里的每一项，如果柱子数目多于colorList的长度，则柱子颜色循环使用该数组
+                  color: '#3161b6',
+                },
+              },
+              //鼠标悬停时：
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+              },
+            },
+            {
+              stack: '0',
+              type: 'bar',
+              itemStyle: {
+                //通常情况下：
+                normal: {
+                  //每个柱子的颜色即为colorList数组里的每一项，如果柱子数目多于colorList的长度，则柱子颜色循环使用该数组
+                  color: '#e88b00',
+                },
+              },
+              //鼠标悬停时：
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+              },
+            },
+            {
+              stack: '0',
+              type: 'bar',
+              itemStyle: {
+                //通常情况下：
+                normal: {
+                  //每个柱子的颜色即为colorList数组里的每一项，如果柱子数目多于colorList的长度，则柱子颜色循环使用该数组
+                  color: '#9ce484',
+                },
+              },
+              //鼠标悬停时：
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+              },
+            },
+          ],
+        },
+        //row 6 chart 2 option
+        r6chart2option: {
+          title: {
+            text: 'Ending Balance',
+            subtext: 'Thousands',
+            left: 'center',
+            top: '1%'
+          },
+          legend: {
+            top: '15%'
+          },
+          tooltip: {},
+          grid: {
+            left: '10%',
+            right: '10%',
+            bottom: '5%',
+            top: '25%',
+            containLabel: true,
+          },
+          dataset: {
+            // 提供一份数据。
+            source: [
+              ['Period', '<1 year', '1-2 year', '2-3 years', '>3 year'],
+              ['Matcha Latte', 0, 85.8, 93.7],
+              ['Milk Tea', 83.1, 73.4, 55.1],
+              ['Cheese Cocoa', 86.4, 65.2, 82.5],
+              ['Walnut Brownie', 72.4, 53.9, 39.1],
+            ],
+          },
+          // // 声明一个 X 轴，类目轴（category）。默认情况下，类目轴对应到 dataset 第一列。
+          // xAxis: {type: 'category'},
+          // // 声明一个 Y 轴，数值轴。
+          // yAxis: {},
+          xAxis: {
+            name: 'Thousands',
+            type: 'value',
+            axisLine: {
+              show: true,
+              symbol: ['none', 'arrow'], //两端都显示箭头
+              symbolOffset: [0, 5], //箭头距离两端的距离,可为负数
+            },
+          },
+          yAxis: {
+            name: '',
+            type: 'category',
+            // axisLine: {
+            //     symbol: ['none', 'none'], //两端都显示箭头
+            //     symbolOffset: [0, 30] //箭头距离两端的距离,可为负数
+            // }
+          },
+          // 声明多个 bar 系列，默认情况下，每个系列会自动对应到 dataset 的每一列。
+          series: [
+            {
+              stack: '0',
+              type: 'bar',
+              itemStyle: {
+                //通常情况下：
+                normal: {
+                  //每个柱子的颜色即为colorList数组里的每一项，如果柱子数目多于colorList的长度，则柱子颜色循环使用该数组
+                  color: '#3161b6',
+                },
+              },
+              //鼠标悬停时：
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+              },
+            },
+            {
+              stack: '0',
+              type: 'bar',
+              itemStyle: {
+                //通常情况下：
+                normal: {
+                  //每个柱子的颜色即为colorList数组里的每一项，如果柱子数目多于colorList的长度，则柱子颜色循环使用该数组
+                  color: '#e88b00',
+                },
+              },
+              //鼠标悬停时：
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+              },
+            },
+            {
+              stack: '0',
+              type: 'bar',
+              itemStyle: {
+                //通常情况下：
+                normal: {
+                  //每个柱子的颜色即为colorList数组里的每一项，如果柱子数目多于colorList的长度，则柱子颜色循环使用该数组
+                  color: '#9ce484',
+                },
+              },
+              //鼠标悬停时：
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+              },
+            },
+          ],
+        },
+
+      },
+      components: {},
+      template: '',
+      watch: {},
+      mounted() {
+        //row3 chart1
+        let r3chart1dom = echarts.init(document.getElementById('r3chart1'));
+        r3chart1dom.setOption(this.r3chart1option);
+
+        //row3 chart2
+        let r3chart2dom = echarts.init(document.getElementById('r3chart2'));
+        r3chart2dom.setOption(this.r3chart2option);
+
+        //row6 chart1
+        let r6chart1dom = echarts.init(document.getElementById('r6chart1'));
+        r6chart1dom.setOption(this.r6chart1option);
+
+        //row6 chart2
+        let r6chart2dom = echarts.init(document.getElementById('r6chart2'));
+        r6chart2dom.setOption(this.r6chart2option);
+      },
+      methods: {
+
+
+      },
+    })
+
+
+
+
+  </script>
+</body>
+
+</html>
